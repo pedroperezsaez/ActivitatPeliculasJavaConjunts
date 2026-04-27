@@ -153,8 +153,8 @@ class Metflix {
         cataleg.put(p.getId(),p);
         String genere=p.getGenere();
         if (!perGenere.containsKey(genere)){
-            List<Pelicula> nueveGenero=new ArrayList<>();
-            perGenere.put(genere,nueveGenero);
+            List<Pelicula> nuevoGenero=new ArrayList<>();
+            perGenere.put(genere,nuevoGenero);
         }
             perGenere.get(genere).add(p);
 
@@ -174,22 +174,31 @@ class Metflix {
     public Usuari buscarUsuari(String id) {
         // TODO: Retornar l'usuari del mapa d'usuaris
 
-        return null;
+        return usuaris.get(id);
     }
 
     public List<Pelicula> topValorades(int n) {
         // TODO: Retornar les n pel·lícules amb millor puntuació
         // Pista: Convertir el Map a List i usar Collections.sort()
+        List<Pelicula> listpeliculas=new ArrayList<>();
+          Iterator<Pelicula>itcataleg=cataleg.values().iterator();
+          while (itcataleg.hasNext()){
+              Pelicula pelicula= itcataleg.next();
+              listpeliculas.add(pelicula);
+          }
+          Collections.sort(listpeliculas);
         return null;
     }
 
     public void visualitzar(Usuari u, Pelicula p) {
         // TODO: Afegir l'ID de la pel·lícula a l'historial de l'usuari
+       u.getHistorial().add(p.getId());
     }
 
     public void generarRecomanacions(String idUsuari) {
         // TODO: Tasca avançada
         // 1. Trobar quin és el gènere que l'usuari ha vist més vegades.
+
         // 2. Cercar pel·lícules d'aquell gènere que l'usuari ENCARA NO hagi vist.
         // 3. Afegir-les a la cua de recomanacions de l'usuari.
     }
