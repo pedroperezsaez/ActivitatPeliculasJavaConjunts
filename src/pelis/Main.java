@@ -229,8 +229,20 @@ class Metflix {
         // 1. Trobar quin és el gènere que l'usuari ha vist més vegades.
         // 2. Cercar pel·lícules d'aquell gènere que l'usuari ENCARA NO hagi vist.
         // 3. Afegir-les a la cua de recomanacions de l'usuari.
+        Usuari u= buscarUsuari(idUsuari);
+        String genereMesVist=trobaGenereMesVist(u);
+        //Una vegada hem obtingut el genere que s'ha vist mes vegades
+        //ara hem de cercar al cataleg pelicules d'aquest genere que lusuari encara noha vist
+        List<Pelicula> pelGenere = perGenere.get(genereMesVist);
+        for(Pelicula p : pelGenere){
+            if (!u.getHistorial().contains(p.getId())){
+                u.getRecomanacions().add(p);
+            }
+        }
+    }
+
+    private String trobaGenereMesVist(Usuari u) {
         Map<String, Integer> map1 = new HashMap<>();
-        Usuari u = buscarUsuari(idUsuari);
         Set<String> historial=u.getHistorial();
         for (String idP:historial){
             Pelicula p=buscarPerId(idP);
@@ -251,14 +263,7 @@ class Metflix {
                 genereMesVist=gen;
             }
         }
-        //Una vegada hem obtingut el genere que s'ha vist mes vegades
-        //ara hem de cercar al cataleg pelicules d'aquest genere que lusuari encara noha vist
-        List<Pelicula> pelGenere = perGenere.get(genereMesVist);
-        for(Pelicula p : pelGenere){
-            if (!u.getHistorial().contains(p.getId())){
-                u.getRecomanacions().add(p);
-            }
-        }
+        return genereMesVist;
     }
 
     public Pelicula seguentRecomanacio(String idUsuari) {
