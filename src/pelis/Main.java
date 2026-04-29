@@ -44,17 +44,41 @@ public class Main {
         // TODO: Tasca 4 - Implementar el flux principal
         
         // 1. Instanciar l'objecte Metflix.
-        
+        Metflix metflix= new Metflix();
         // 2. Carregar les dades de les matrius 'dadesPelicules' i 'dadesUsuaris' 
         //    dins del sistema (recorda fer els càstings de dades necessaris).
-        
+        for (int i = 0; i < dadesPelicules.length; i++) {
+            String[] ar=dadesPelicules[i];
+            String id=ar[0];
+            String titol=ar[1];
+            String genere = ar[2];
+            int any= Integer.parseInt(ar[3]);
+            double valoracio = Double.parseDouble(ar[4]);
+            Pelicula p = new Pelicula(id,titol,genere,any,valoracio);
+            metflix.afegirPelicula(p);
+        }
+        for (int i = 0; i < dadesUsuaris.length; i++) {
+            String[] ar= dadesUsuaris[i];
+            String id=ar[0];
+            String nom=ar[1];
+            Usuari u= new Usuari(id,nom);
+            metflix.afegirUsuari(u);
+        }
         // 3. Cercar un usuari i simular que visualitza unes quantes pel·lícules.
-        
+        Usuari u = metflix.buscarUsuari("U3");
+        metflix.visualitzar(u,metflix.buscarPerId("P001"));
+        metflix.visualitzar(u,metflix.buscarPerId("P006"));
+        metflix.visualitzar(u,metflix.buscarPerId("P008"));
         // 4. Generar les recomanacions per a aquest usuari.
-        
+        metflix.generarRecomanacions("U3");
         // 5. Mostrar per pantalla les recomanacions obtingudes (usant el mètode seguentRecomanacio).
-        
+        Queue<Pelicula> recomanacions = u.getRecomanacions();
+        System.out.println("Recomanaciones per usuari: "+ u.getNom());
+        System.out.println(recomanacions);
         // 6. Mostrar el TOP 3 de pel·lícules millor valorades del catàleg.
+        List<Pelicula> top3=metflix.topValorades(3);
+        System.out.println("top 3 pelicules del catalge");
+        System.out.println(top3);
     }
 }
 
@@ -181,13 +205,18 @@ class Metflix {
         // TODO: Retornar les n pel·lícules amb millor puntuació
         // Pista: Convertir el Map a List i usar Collections.sort()
         List<Pelicula> listpeliculas=new ArrayList<>();
-          Iterator<Pelicula>itcataleg=cataleg.values().iterator();
-          while (itcataleg.hasNext()){
-              Pelicula pelicula= itcataleg.next();
-              listpeliculas.add(pelicula);
+
+          for (String id: cataleg.keySet()){
+              Pelicula p = cataleg.get(id);
+              listpeliculas.add(p);
           }
           Collections.sort(listpeliculas);
-        return null;
+         List<Pelicula> result = new ArrayList<>();
+        for (int i = listpeliculas.size()-1; i >= 0; i--) {
+            result.add(listpeliculas.get(i));
+        }
+        return result;
+
     }
 
     public void visualitzar(Usuari u, Pelicula p) {
@@ -198,13 +227,43 @@ class Metflix {
     public void generarRecomanacions(String idUsuari) {
         // TODO: Tasca avançada
         // 1. Trobar quin és el gènere que l'usuari ha vist més vegades.
-
         // 2. Cercar pel·lícules d'aquell gènere que l'usuari ENCARA NO hagi vist.
         // 3. Afegir-les a la cua de recomanacions de l'usuari.
+        Map<String, Integer> map1 = new HashMap<>();
+        Usuari u = buscarUsuari(idUsuari);
+        Set<String> historial=u.getHistorial();
+        for (String idP:historial){
+            Pelicula p=buscarPerId(idP);
+            String gen = p.getGenere();
+            if (map1.containsKey(gen)){
+                int vegades=map1.get(gen)+1;
+                map1.put(gen,vegades);
+            }else {
+                map1.put(gen,1);
+            }
+        }
+        String genereMesVist="";
+        int vegades=0;
+        for (String gen: map1.keySet()){
+            int n=map1.get(gen);
+            if (n> vegades){
+                vegades=n;
+                genereMesVist=gen;
+            }
+        }
+        //Una vegada hem obtingut el genere que s'ha vist mes vegades
+        //ara hem de cercar al cataleg pelicules d'aquest genere que lusuari encara noha vist
+        List<Pelicula> pelGenere = perGenere.get(genereMesVist);
+        for(Pelicula p : pelGenere){
+            if (!u.getHistorial().contains(p.getId())){
+                u.getRecomanacions().add(p);
+            }
+        }
     }
 
     public Pelicula seguentRecomanacio(String idUsuari) {
         // TODO: Retornar i extreure el següent element de la cua de recomanacions (poll)
-        return null;
+        Usuari u=buscarUsuari(idUsuari);
+        return  u.getRecomanacions().poll();
     }
 }
